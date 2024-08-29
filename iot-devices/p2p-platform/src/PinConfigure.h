@@ -12,7 +12,7 @@ static const String PIN_23_INP_FLAME_01 = "FLAME_01";
 
 static PinManager pinManager;
 
-void initPins()
+void configurePins()
 {
     // Add pins
     pinManager.addPin(PIN_02_OUT_RELAY_01, 02, OUTPUT);
