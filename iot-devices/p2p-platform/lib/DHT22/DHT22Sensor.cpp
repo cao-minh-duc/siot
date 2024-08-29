@@ -12,8 +12,7 @@ float DHT22Sensor::readHumidity()
     float humidity = dht.readHumidity();
     if (isnan(humidity))
     {
-        Serial.println("Failed to read humidity from DHT22 sensor!");
-        return -1; // Return an error value
+        return -1;
     }
     return humidity;
 }
@@ -24,7 +23,6 @@ float DHT22Sensor::readTemperature()
     float temperature = dht.readTemperature();
     if (isnan(temperature))
     {
-        Serial.println("Failed to read temperature from DHT22 sensor!");
         return -1;
     }
     return temperature;
@@ -41,4 +39,21 @@ bool DHT22Sensor::readData(float &temperature, float &humidity)
         return false;
     }
     return true;
+}
+
+// Method to get the state as a JsonDocument
+void DHT22Sensor::getState(JsonDocument &doc)
+{
+    float temperature, humidity;
+
+    if (readData(temperature, humidity))
+    {
+        doc["temperature"] = temperature;
+        doc["humidity"] = humidity;
+    }
+    else
+    {
+        doc["temperature"] = 0;
+        doc["humidity"] = 0;
+    }
 }

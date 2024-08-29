@@ -18,3 +18,9 @@ bool FlameSensor::isFlameDetected()
 {
     return (readValue() == alert_value);
 }
+
+// Method to get the state as a JsonDocument
+void FlameSensor::getState(JsonDocument &doc)
+{
+    doc["flameDetected"] = isFlameDetected();
+}

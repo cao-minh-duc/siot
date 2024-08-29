@@ -2,6 +2,7 @@
 #define FLAME_SENSOR_KY_026_H
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 class FlameSensor
 {
@@ -18,6 +19,9 @@ public:
 
     // Function to check if flame is detected
     bool isFlameDetected();
+
+    // Method to get the state as a JsonDocument
+    void getState(JsonDocument &doc);
 };
 
 #endif // FLAME_SENSOR_KY_026_H

@@ -42,3 +42,9 @@ bool RelayModule::isOn()
 {
     return isRelayOn;
 }
+
+// Method to get the state as a JsonDocument
+void RelayModule::getState(JsonDocument &doc)
+{
+    doc["isOn"] = isOn();
+}

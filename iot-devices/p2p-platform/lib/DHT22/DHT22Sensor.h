@@ -2,6 +2,7 @@
 #define DHT22SENSOR_H
 
 #include <DHT.h>
+#include <ArduinoJson.h>
 
 class DHT22Sensor
 {
@@ -22,6 +23,9 @@ public:
 
     // Function to get both temperature and humidity at once
     bool readData(float &temperature, float &humidity);
+
+    // Method to get the state as a JsonDocument
+    void getState(JsonDocument &doc);
 };
 
 #endif // DHT22SENSOR_H
