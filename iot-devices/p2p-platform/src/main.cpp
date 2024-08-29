@@ -2,10 +2,13 @@
 #include <PinConfigure.h>
 #include <DHT22Sensor.h>
 #include <FlameSensor.h>
+#include <RelayModule.h>
 
 // Initialize the DHT sensor
 DHT22Sensor dht22Sensor(-1);
 FlameSensor flameSensor(-1, -1);
+RelayModule relayModule_01(-1);
+RelayModule relayModule_02(-1);
 
 void setup()
 {
@@ -16,15 +19,20 @@ void setup()
 
   dht22Sensor = DHT22Sensor(getPin(PIN_22_INP_DHT22_01));
   flameSensor = FlameSensor(getPin(PIN_23_INP_FLAME_01), LOW);
+  relayModule_01 = RelayModule(getPin(PIN_02_OUT_RELAY_01));
+  relayModule_02 = RelayModule(getPin(PIN_15_OUT_RELAY_02));
+
+  relayModule_01.begin();
+  relayModule_02.begin();
 }
 
 void loop()
 {
-  digitalWrite(getPin(PIN_02_OUT_RELAY_01), HIGH);
-  digitalWrite(getPin(PIN_15_OUT_RELAY_02), LOW);
+  relayModule_01.turnOn();
+  relayModule_02.turnOff();
   delay(500);
-  digitalWrite(getPin(PIN_02_OUT_RELAY_01), LOW);
-  digitalWrite(getPin(PIN_15_OUT_RELAY_02), HIGH);
+  relayModule_01.turnOff();
+  relayModule_02.turnOn();
 
   if (flameSensor.isFlameDetected())
     Serial.println("No flame dected => The fire is NOT detected");
