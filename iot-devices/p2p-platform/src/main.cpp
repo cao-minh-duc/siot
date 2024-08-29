@@ -2,8 +2,10 @@
 #include <DHT22Sensor.h>
 #include <FlameSensor.h>
 #include <RelayModule.h>
+#include <WiFiModule.h>
 #include <PinConfigure.h>
 #include <StateStorage.h>
+#include <NetworkConfigure.h>
 #include <TaskConfigure.h>
 
 // Initialize modules
@@ -17,6 +19,9 @@ StateStorage stateStorage(4096); // Adjust based on expected JSON size
 
 // TaskScheduler
 Scheduler runner;
+
+// Create a WiFiWrapper instance
+WiFiModule wifi(WIFI_SSID, WIFI_PSWD, WIFI_RETRY_INTERVAL);
 
 void setup()
 {
@@ -36,6 +41,9 @@ void setup()
 
   // Configure Tasks
   configureTasks();
+
+  // Connect tot WiFi
+  wifi.connect();
 }
 
 void loop()
@@ -43,9 +51,17 @@ void loop()
   runner.execute();
 }
 
-///////////////////////
-/// Implement Tasks ///
-///////////////////////
+#pragma region Implement Tasks
+
+void network_CheckConnection()
+{
+  if (wifi.isOffline())
+  {
+    tNetwork_CheckConnection.disable();
+    return;
+  }
+  wifi.handleConnection();
+}
 
 void storeState_FlameSensor()
 {
@@ -84,3 +100,5 @@ void logAndClearState()
   // Clear the state after logging
   stateStorage.clearStorage();
 }
+
+#pragma endregion Implement Tasks
