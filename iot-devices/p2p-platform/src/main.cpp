@@ -3,10 +3,12 @@
 #include <FlameSensor.h>
 #include <RelayModule.h>
 #include <WiFiModule.h>
+#include <MQTTWrapper.h>
 #include <PinConfigure.h>
 #include <StateStorage.h>
 #include <NetworkConfigure.h>
 #include <TaskConfigure.h>
+#include <UUID.h>
 
 // Initialize modules
 DHT22Sensor dht22Sensor(-1);
@@ -21,12 +23,19 @@ StateStorage stateStorage(4096); // Adjust based on expected JSON size
 Scheduler runner;
 
 // Create a WiFiWrapper instance
+WiFiClient wifiClient;
 WiFiModule wifi(WIFI_SSID, WIFI_PSWD, WIFI_RETRY_INTERVAL);
+MQTTWrapper mqtt(wifiClient, MQTT_SERVER, MQTT_PORT, MQTT_USER, MQTT_PSWD, SIOT_CLIENT_ID);
 
 void setup()
 {
   // Start Serial for debugging
   Serial.begin(115200);
+
+  // Config Unique Id for client
+  UUID uuid;
+  uuid.generate();
+  SIOT_CLIENT_ID = uuid.toCharArray();
 
   // Configure Pins for modules and initialize manager
   configurePins();
@@ -42,8 +51,22 @@ void setup()
   // Configure Tasks
   configureTasks();
 
-  // Connect tot WiFi
+  // Connect to WiFi
   wifi.connect();
+
+  // Setup MQTT
+  mqtt.setup();
+  mqtt.setCallback([](char *topic, byte *payload, unsigned int length)
+                   {
+                    Serial.print("Message arrived in topic: ");
+                    Serial.println(topic);
+
+                    Serial.print("Message:");
+                    for (int i = 0; i < length; i++) {
+                        Serial.print((char)payload[i]);
+                    }
+                    Serial.println();
+                    Serial.println("-----------------------"); });
 }
 
 void loop()
@@ -53,14 +76,24 @@ void loop()
 
 #pragma region Implement Tasks
 
-void network_CheckConnection()
+void network_CheckWiFiConnection()
 {
   if (wifi.isOffline())
   {
-    tNetwork_CheckConnection.disable();
+    tNetwork_CheckWiFiConnection.disable();
     return;
   }
   wifi.handleConnection();
+}
+
+void network_CheckMQTTConnection()
+{
+  if (mqtt.isOffline())
+  {
+    tNetwork_CheckMQTTConnection.disable();
+    return;
+  }
+  mqtt.handleConnection();
 }
 
 void storeState_FlameSensor()
@@ -91,11 +124,21 @@ void storeState_Relays()
   stateStorage.addState(PIN_15_OUT_RELAY_02.c_str(), relay_02);
 }
 
-void logAndClearState()
+void network_PublishStatisticData()
 {
   String serializedState = stateStorage.serializeStorage();
-  Serial.println("Serialized State:");
-  Serial.println(serializedState);
+  try
+  {
+    if (mqtt.isConnected())
+    {
+      mqtt.publish("test/topic", serializedState);
+      Serial.println("Message published");
+    }
+  }
+  catch (const std::exception &e)
+  {
+    Serial.println(e.what());
+  }
 
   // Clear the state after logging
   stateStorage.clearStorage();
