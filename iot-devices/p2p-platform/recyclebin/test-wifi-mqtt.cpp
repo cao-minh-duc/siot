@@ -26,69 +26,80 @@ const char *mqtt_password = "admin";
 const int mqtt_port = 1883;
 // MQTT port (TCP)
 
+class FlameSensor
+{
+private:
+  int pin;
 
-class FlameSensor {
-  private:
-    int pin;
+public:
+  // Constructor
+  FlameSensor(int sensorPin)
+  {
+    pin = sensorPin;
+    pinMode(pin, INPUT);
+  }
 
-  public:
-    // Constructor
-    FlameSensor(int sensorPin) {
-      pin = sensorPin;
-      pinMode(pin, INPUT);
-    }
+  // Function to read sensor value
+  int readValue()
+  {
+    return digitalRead(pin);
+  }
 
-    // Function to read sensor value
-    int readValue() {
-      return digitalRead(pin);
-    }
-
-    // Function to check if flame is detected
-    bool isFlameDetected() {
-      return (readValue() == HIGH);
-    }
+  // Function to check if flame is detected
+  bool isFlameDetected()
+  {
+    return (readValue() == HIGH);
+  }
 };
 
-class DHT22Sensor {
-  private:
-    int pin;
-    DHT dht;
+class DHT22Sensor
+{
+private:
+  int pin;
+  DHT dht;
 
-  public:
-    DHT22Sensor(int sensorPin) : pin(sensorPin), dht(sensorPin, DHT22) {
-      dht.begin();
+public:
+  DHT22Sensor(int sensorPin) : pin(sensorPin), dht(sensorPin, DHT22)
+  {
+    dht.begin();
+  }
+
+  // Function to read humidity
+  float readHumidity()
+  {
+    float humidity = dht.readHumidity();
+    if (isnan(humidity))
+    {
+      Serial.println("Failed to read humidity from DHT22 sensor!");
+      return -1; // Return an error value
     }
+    return humidity;
+  }
 
-    // Function to read humidity
-    float readHumidity() {
-      float humidity = dht.readHumidity();
-      if (isnan(humidity)) {
-        Serial.println("Failed to read humidity from DHT22 sensor!");
-        return -1; // Return an error value
-      }
-      return humidity;
+  // Function to read temperature
+  float readTemperature()
+  {
+    float temperature = dht.readTemperature();
+    if (isnan(temperature))
+    {
+      Serial.println("Failed to read temperature from DHT22 sensor!");
+      return -1;
     }
+    return temperature;
+  }
 
-    // Function to read temperature
-    float readTemperature() {
-      float temperature = dht.readTemperature();
-      if (isnan(temperature)) {
-        Serial.println("Failed to read temperature from DHT22 sensor!");
-        return -1;
-      }
-      return temperature;
+  // Function to get both temperature and humidity at once
+  bool readData(float &temperature, float &humidity)
+  {
+    humidity = readHumidity();
+    temperature = readTemperature();
+
+    if (humidity == -1 || temperature == -1)
+    {
+      return false;
     }
-
-    // Function to get both temperature and humidity at once
-    bool readData(float &temperature, float &humidity) {
-      humidity = readHumidity();
-      temperature = readTemperature();
-
-      if (humidity == -1 || temperature == -1) {
-        return false;
-      }
-      return true;
-    }
+    return true;
+  }
 };
 
 void connectToWiFi();
@@ -109,7 +120,8 @@ PubSubClient mqtt_client(espClient);
 // https://arduinojson.org/v7/example/generator/
 JsonDocument jsonDoc;
 
-void initJsonDoc(){
+void initJsonDoc()
+{
   jsonDoc.clear();
 
   jsonDoc["name"] = "Nhom2_Node1";
@@ -121,7 +133,8 @@ void initJsonDoc(){
   serializeJsonPretty(jsonDoc, Serial);
 }
 
-void setup() {
+void setup()
+{
   Serial.begin(9600);
 
   // Create an instance of the FlameSensor class
@@ -136,16 +149,19 @@ void setup() {
   connectToWiFi();
   mqtt_client.setServer(mqtt_broker, mqtt_port);
   mqtt_client.setCallback(mqttCallback);
-  if (!mqtt_client.connected()) {
+  if (!mqtt_client.connected())
+  {
     connectToMQTTBroker();
   }
 }
 
-void connectToWiFi() {
+void connectToWiFi()
+{
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(500);
     Serial.print(".");
   }
@@ -154,16 +170,20 @@ void connectToWiFi() {
   Serial.println(WiFi.localIP());
 }
 
-char* convert() {
+char *convert()
+{
   // Calculate the size needed for the char array
-  size_t size = measureJson(doc) + 1;  // +1 for the null terminator
+  size_t size = measureJson(doc) + 1; // +1 for the null terminator
 }
 
-void connectToMQTTBroker() {
-  while (!mqtt_client.connected()) {
+void connectToMQTTBroker()
+{
+  while (!mqtt_client.connected())
+  {
     String client_id = "esp8266-client-" + String(WiFi.macAddress());
     Serial.printf("Connecting to MQTT Broker as %s.....\n", client_id.c_str());
-    if (mqtt_client.connect(client_id.c_str(), mqtt_username, mqtt_password)) {
+    if (mqtt_client.connect(client_id.c_str(), mqtt_username, mqtt_password))
+    {
       Serial.println("Connected to MQTT broker");
       mqtt_client.subscribe(mqtt_topic);
 
@@ -171,8 +191,9 @@ void connectToMQTTBroker() {
       serializeJsonPretty(jsonDoc, jsonString);
 
       mqtt_client.publish(mqtt_topic, toCharArray(jsonString));
-      
-    } else {
+    }
+    else
+    {
       Serial.print("Failed to connect to MQTT broker, rc=");
       Serial.print(mqtt_client.state());
       Serial.println(" try again in 5 seconds");
@@ -181,18 +202,21 @@ void connectToMQTTBroker() {
   }
 }
 
-void mqttCallback(char *topic, byte *payload, unsigned int length) {
+void mqttCallback(char *topic, byte *payload, unsigned int length)
+{
   Serial.print("Message received on topic: ");
   Serial.println(topic);
   Serial.print("Message:");
-  for (unsigned int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++)
+  {
     Serial.print((char)payload[i]);
   }
   Serial.println();
   Serial.println("-----------------------");
 }
 
-void collectData_FlameSensor() {
+void collectData_FlameSensor()
+{
 
   JsonArray dataSeries = jsonDoc["data"]["flame"]["series"].to<JsonArray>();
   dataSeries.add(flame.readValue());
@@ -202,21 +226,26 @@ void collectData_FlameSensor() {
   Serial.println(flame.readValue());
 
   // Check if flame is detected
-  if (flame.isFlameDetected()) {
+  if (flame.isFlameDetected())
+  {
     Serial.println("Flame detected!");
-  } else {
+  }
+  else
+  {
     Serial.println("No flame detected.");
   }
 }
 
-void collectData_DHT22Sensor() {
+void collectData_DHT22Sensor()
+{
   float temperature, humidity;
 
   JsonArray dataTempSeries = jsonDoc["data"]["temperature"]["series"].to<JsonArray>();
   JsonArray dataHumiSeries = jsonDoc["data"]["humidity"]["series"].to<JsonArray>();
 
   // Read and print the temperature and humidity
-  if (dht22.readData(temperature, humidity)) {
+  if (dht22.readData(temperature, humidity))
+  {
     dataTempSeries.add(temperature);
     dataHumiSeries.add(humidity);
 
@@ -227,22 +256,27 @@ void collectData_DHT22Sensor() {
     Serial.print("Humidity: ");
     Serial.print(humidity);
     Serial.println(" %");
-  } else {
+  }
+  else
+  {
     Serial.println("Failed to read data from DHT22 sensor!");
   }
 }
 
 int loopCount = 0;
 
-void loop() {
+void loop()
+{
   delay(1000);
 
   collectData_FlameSensor();
 
   collectData_DHT22Sensor();
 
-  if (++loopCount == 10) {
-    if (!mqtt_client.connected()) {
+  if (++loopCount == 10)
+  {
+    if (!mqtt_client.connected())
+    {
       connectToMQTTBroker();
     }
     mqtt_client.loop();

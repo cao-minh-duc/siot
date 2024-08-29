@@ -1,9 +1,11 @@
 #include <Arduino.h>
 #include <PinConfigure.h>
 #include <DHT22Sensor.h>
+#include <FlameSensor.h>
 
 // Initialize the DHT sensor
 DHT22Sensor dht22Sensor(-1);
+FlameSensor flameSensor(-1, -1);
 
 void setup()
 {
@@ -13,6 +15,7 @@ void setup()
   initPins();
 
   dht22Sensor = DHT22Sensor(getPin(PIN_22_INP_DHT22_01));
+  flameSensor = FlameSensor(getPin(PIN_23_INP_FLAME_01), LOW);
 }
 
 void loop()
@@ -23,9 +26,7 @@ void loop()
   digitalWrite(getPin(PIN_02_OUT_RELAY_01), LOW);
   digitalWrite(getPin(PIN_15_OUT_RELAY_02), HIGH);
 
-  int flame_state = digitalRead(getPin(PIN_23_INP_FLAME_01));
-
-  if (flame_state == LOW)
+  if (flameSensor.isFlameDetected())
     Serial.println("No flame dected => The fire is NOT detected");
   else
     Serial.println("Flame dected => The fire is detected");
@@ -46,5 +47,5 @@ void loop()
   }
 
   // Wait a few seconds between measurements
-  delay(2000);
+  delay(1000);
 }
