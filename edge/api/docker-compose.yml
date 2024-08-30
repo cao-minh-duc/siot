@@ -3,6 +3,7 @@ services:
     build: ./app
     volumes:
       - ./app:/app
+      - ./data:/data
     ports:
       - "80:80"  # Change this line to use port 80
     command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
