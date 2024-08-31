@@ -4,8 +4,8 @@
 #include <TaskScheduler.h>
 #include <NetworkConfigure.h>
 
-// External declarations for global variables used in tasks
-extern Scheduler runner;
+// TaskScheduler
+Scheduler runner;
 
 // Task function declarations
 void network_CheckWiFiConnection();

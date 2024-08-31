@@ -1,0 +1,120 @@
+{
+    "FLAME_01": [
+        {
+            "flameDetected": false
+        },
+        {
+            "flameDetected": false
+        },
+        {
+            "flameDetected": false
+        },
+        {
+            "flameDetected": false
+        },
+        {
+            "flameDetected": false
+        },
+        {
+            "flameDetected": false
+        },
+        {
+            "flameDetected": false
+        },
+        {
+            "flameDetected": false
+        },
+        {
+            "flameDetected": false
+        },
+        {
+            "flameDetected": false
+        }
+    ],
+    "RELAY_01": [
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        },
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        },
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        },
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        },
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        }
+    ],
+    "RELAY_02": [
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        },
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        },
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        },
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        },
+        {
+            "isOn": false
+        },
+        {
+            "isOn": true
+        }
+    ],
+    "DHT22_01": [
+        {
+            "temperature": 0,
+            "humidity": 0
+        },
+        {
+            "temperature": 0,
+            "humidity": 0
+        },
+        {
+            "temperature": 0,
+            "humidity": 0
+        },
+        {
+            "temperature": 0,
+            "humidity": 0
+        },
+        {
+            "temperature": 0,
+            "humidity": 0
+        }
+    ]
+}

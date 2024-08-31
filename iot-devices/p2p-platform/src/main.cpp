@@ -19,9 +19,6 @@ RelayModule relayModule_02(-1);
 // State Storage with dynamic capacity
 StateStorage stateStorage(4096); // Adjust based on expected JSON size
 
-// TaskScheduler
-Scheduler runner;
-
 // Create a WiFiWrapper instance
 WiFiClient wifiClient;
 WiFiModule wifi(WIFI_SSID, WIFI_PSWD, WIFI_RETRY_INTERVAL);
@@ -47,6 +44,9 @@ void setup()
 
   relayModule_01.begin();
   relayModule_02.begin();
+
+  relayModule_01.turnOn();
+  relayModule_02.turnOn();
 
   // Configure Tasks
   configureTasks();
@@ -101,6 +101,17 @@ void storeState_FlameSensor()
   JsonDocument flameState;
   flameSensor.getState(flameState);
   stateStorage.addState(PIN_23_INP_FLAME_01.c_str(), flameState);
+
+  if (flameSensor.isFlameDetected())
+  {
+    relayModule_01.turnOff();
+    relayModule_02.turnOff();
+  }
+  else
+  {
+    relayModule_01.turnOn();
+    relayModule_02.turnOn();
+  }
 }
 
 void storeState_DHTSensor()
@@ -112,8 +123,8 @@ void storeState_DHTSensor()
 
 void storeState_Relays()
 {
-  relayModule_01.toggle();
-  relayModule_02.toggle();
+  // relayModule_01.toggle();
+  // relayModule_02.toggle();
 
   JsonDocument relay_01, relay_02;
 
