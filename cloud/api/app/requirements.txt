@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+paho-mqtt
+jinja2
+python-dotenv
+sqlalchemy
+fastapi-sqlalchemy
+databases
