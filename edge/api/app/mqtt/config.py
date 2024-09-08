@@ -13,4 +13,4 @@ MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "admin")
 # Fetch topics from the database
 def load_topics():
     with next(get_db()) as db:
-        return [topic.topic for topic in get_mqtt_topics(db)]
+        return ["edges/3fd7ae10-80f4-462f-8399-8ee8b1c09e23"]
